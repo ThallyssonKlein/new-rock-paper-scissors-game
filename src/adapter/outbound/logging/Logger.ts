@@ -17,6 +17,10 @@ export default class Logger {
         winstonLogger.error(this.format(message, traceId), meta);
     }
 
+    public warn(message: string, traceId?: string, meta?: unknown) {
+        winstonLogger.warn(this.format(message, traceId), meta ? { meta } : undefined);
+    }
+
     public info(message: string, traceId?: string, meta?: unknown) {
         winstonLogger.info(this.format(message, traceId), meta ? { meta } : undefined);
     }

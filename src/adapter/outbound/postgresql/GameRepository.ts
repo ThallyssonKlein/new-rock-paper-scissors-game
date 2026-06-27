@@ -21,11 +21,12 @@ export default class GameRepository implements IGameRepository {
         return new Game(saved.id, saved.nextMove ?? undefined, saved.status ?? undefined, saved.ownerId);
     }
 
-    async findByOwnerId(ownerId: number): Promise<Game[]> {
-        const games = await this.prisma.game.findMany({
-            where: { ownerId }
+    async findByOwnerIdAndGameId(ownerId: number, gameId: number): Promise<Game | null> {
+        const game = await this.prisma.game.findFirst({
+            where: { ownerId, id: gameId }
         });
 
-        return games.map(g => new Game(g.id, g.nextMove ?? undefined, g.status ?? undefined, g.ownerId));
+        if (!game) return null;
+        return new Game(game.id, game.nextMove ?? undefined, game.status ?? undefined, game.ownerId);
     }
 }

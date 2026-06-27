@@ -1,11 +1,13 @@
 import Routes from "./adapter/inbound/http/api/Routes";
 import GameController from "./adapter/inbound/http/api/v1/controller/GameController";
 import GameReposityAdapter from "./adapter/outbound/postgresql/GameRepository";
+import RedisAdapter from "./adapter/outbound/redis/RedisAdapter";
 import GameUseCase from "./application/usecases/GameUsecase";
 
 const gameRepository = new GameReposityAdapter();
+const redisAdapter = new RedisAdapter();
 
-const gameUseCase = new GameUseCase(gameRepository)
+const gameUseCase = new GameUseCase(gameRepository, redisAdapter)
 
 const gameController = new GameController(gameUseCase)
 
