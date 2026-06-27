@@ -17,17 +17,39 @@ enum Status {
   CLOSED
 }
 
+enum MovementValue {
+  ROCK
+  PAPER
+  SCISSORS
+}
+
 model User {
-  id    Int    @id @default(autoincrement())
-  games Game[]
+  id        Int        @id @default(autoincrement())
+  games     Game[]
+  movements Movement[]
 }
 
 model Game {
-  id       Int      @id @default(autoincrement())
-  nextMove NextMove? @map("next_move")
-  status   Status?  @map("status")
-  ownerId  Int      @map("owner_id")
-  owner    User     @relation(fields: [ownerId], references: [id])
+  id        Int        @id @default(autoincrement())
+  nextMove  NextMove?  @map("next_move")
+  status    Status?    @map("status")
+  ownerId   Int        @map("owner_id")
+  owner     User       @relation(fields: [ownerId], references: [id])
+  movements Movement[]
 
   @@map("game")
+}
+
+model Movement {
+  id        Int           @id @default(autoincrement())
+  value     MovementValue
+  salt      String        @db.VarChar(32)
+  hash      String        @db.VarChar(64)
+  playerId  Int           @map("player_id")
+  player    User          @relation(fields: [playerId], references: [id])
+  gameId    Int           @map("game_id")
+  game      Game          @relation(fields: [gameId], references: [id])
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  @@map("movement")
 }
