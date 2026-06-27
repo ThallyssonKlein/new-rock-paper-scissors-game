@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum NextMove {
+  SERVER
+  CLIENT
+}
+
+enum Status {
+  OPENED
+  CLOSED
+}
+
+model User {
+  id    Int    @id @default(autoincrement())
+  games Game[]
+}
+
+model Game {
+  id       Int      @id @default(autoincrement())
+  nextMove NextMove? @map("next_move")
+  status   Status?  @map("status")
+  ownerId  Int      @map("owner_id")
+  owner    User     @relation(fields: [ownerId], references: [id])
+
+  @@map("game")
+}
