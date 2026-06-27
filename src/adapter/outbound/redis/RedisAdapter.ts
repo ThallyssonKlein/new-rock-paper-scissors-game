@@ -1,5 +1,5 @@
 import Redis from "ioredis";
-import IRedisAdapter from "../../../application/posts/IRedisAdapter";
+import IRedisAdapter from "../../../application/posts/outbound/redis/IRedisAdapter";
 
 export default class RedisAdapter implements IRedisAdapter {
     private client: Redis;

@@ -1,7 +1,7 @@
 import StatsD from "hot-shots";
 
 export default class MetricCollector {
-    private client: StatsD;
+    private client: InstanceType<typeof StatsD>;
 
     constructor(
         host: string = process.env.DD_AGENT_HOST ?? "localhost",

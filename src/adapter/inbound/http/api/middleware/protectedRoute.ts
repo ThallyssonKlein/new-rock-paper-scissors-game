@@ -20,7 +20,7 @@ export default class ProtectedRouteMiddleware {
 
     try {
       const verified = jwt.verify(token, process.env.JWT_SECRET as string);
-      req.user_id = verified;
+      req.userId = (verified as any).id;
       this.logger.info('Token verified', req.traceId);
       next();
     } catch (err) {

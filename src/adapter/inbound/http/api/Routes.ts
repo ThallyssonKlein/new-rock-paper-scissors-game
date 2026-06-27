@@ -15,7 +15,7 @@ export default class Routes {
         return this.router;
     }
 
-    private setupRouter() {
+    setupRouter() {
         const uuidMiddleware = new UuidMiddleware()
         const protectedRoute = new ProtectedRouteMiddleware()
 

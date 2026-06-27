@@ -1,31 +1,4 @@
-import Logger from "../../adapter/outbound/logging/Logger";
-import Game from "../domain/Game";
-import GameClosedError from "../domain/error/GameClosedError";
-import InvalidGameOwnerError from "../domain/error/InvalidGameOwnerError";
-import PlayerTurnError from "../domain/error/PlayerTurnError";
-import { Status } from "../entities/Status";
-import IGameRepository from "../posts/IGameRepository";
-import IRedisAdapter from "../posts/IRedisAdapter";
-import IGameUsecase from "../posts/inbound/IGameUsecase";
-
-export default class GameUseCase implements IGameUsecase {
-    private readonly ONE_DAY = 86400000;
-    private logger: Logger
-
-    constructor(
-        private gameRepository: IGameRepository,
-        private redisAdapter: IRedisAdapter,
-    ) {
-        this.logger = new Logger("GameUseCase")
-    }
-
-    async startGame(game: Game): Promise<Game> {
-        const saved = await this.gameRepository.save(game);
-        await this.redisAdapter.set(`game_:${saved.id}_owner`, game.ownerId + '', this.ONE_DAY);
-        await this.redisAdapter.set(`turn_${saved.id}`, 'player', this.ONE_DAY);
-        return saved;
-    }
-
+export default class NextServerMoveUseCase {
     async nextServerMove(gameId: number, userId: number, traceId: string) {
         const isOwner = await this.verifyOwner(gameId, userId)
 

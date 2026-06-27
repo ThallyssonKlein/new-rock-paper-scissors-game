@@ -1,34 +1,30 @@
 import { NextFunction, Response } from "express";
-import IGameUsecase from "../../../../../../application/posts/inbound/IGameUsecase";
+import IStartGameUsecase from "../../../../../../application/posts/inbound/IStartGameUsecase";
 import CustomRequest from "../../middleware/CustomRequest";
-import Game from "../../../../../../application/domain/Game";
+import Game from "../../../../../../application/domain/game/Game";
 
 export default class GameController {
     constructor(
-        private useCase: IGameUsecase
+        private useCase: IStartGameUsecase
     ) {}
-    
+
     public async start(req: CustomRequest, res: Response, next: NextFunction) {
         const userId = req.userId;
 
-        const body = req.body
+        const body = req.body;
         const game = new Game();
-        game.nextMove = body.nextMove
-        game.status = body.status
-        game.ownerId = userId
+        game.nextMove = body.nextMove;
+        game.status = body.status;
+        game.ownerId = userId;
 
         const createdGame = await this.useCase.startGame(game);
 
-        res.status(201).json(createdGame)
+        res.status(201).json(createdGame);
     }
 
-    public nextServerMove() {
-        if ()
-    }
+    public nextServerMove() {}
 
     public move() {}
 
-    public end (){
-        
-    }
+    public end() {}
 }

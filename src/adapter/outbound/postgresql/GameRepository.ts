@@ -1,32 +1,34 @@
-import { PrismaClient } from "../../../generated/prisma";
-import Game from "../../../application/domain/Game";
-import IGameRepository from "../../../application/posts/IGameRepository";
+import { Repository } from "typeorm";
+import { AppDataSource } from "./AppDataSource";
+import { GameEntity } from "./entities/GameEntity";
+import Game from "../../../application/domain/game/Game";
+import IGameRepository from "../../../application/posts/outbound/postgresql/IGameRepository";
 
 export default class GameRepository implements IGameRepository {
-    private prisma: PrismaClient;
+    private repository: Repository<GameEntity>;
 
     constructor() {
-        this.prisma = new PrismaClient();
+        this.repository = AppDataSource.getRepository(GameEntity);
     }
 
     async save(game: Game): Promise<Game> {
-        const saved = await this.prisma.game.create({
-            data: {
-                nextMove: game.nextMove,
-                status: game.status,
-                ownerId: game.ownerId!
-            }
+        const entity = this.repository.create({
+            nextMove: game.nextMove ?? null,
+            status: game.status ?? null,
+            ownerId: game.ownerId!,
         });
+
+        const saved = await this.repository.save(entity);
 
         return new Game(saved.id, saved.nextMove ?? undefined, saved.status ?? undefined, saved.ownerId);
     }
 
     async findByOwnerIdAndGameId(ownerId: number, gameId: number): Promise<Game | null> {
-        const game = await this.prisma.game.findFirst({
-            where: { ownerId, id: gameId }
+        const entity = await this.repository.findOne({
+            where: { ownerId, id: gameId },
         });
 
-        if (!game) return null;
-        return new Game(game.id, game.nextMove ?? undefined, game.status ?? undefined, game.ownerId);
+        if (!entity) return null;
+        return new Game(entity.id, entity.nextMove ?? undefined, entity.status ?? undefined, entity.ownerId);
     }
 }
