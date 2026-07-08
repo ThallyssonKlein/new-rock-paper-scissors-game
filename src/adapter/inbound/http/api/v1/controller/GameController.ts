@@ -5,7 +5,7 @@ import Game from "../../../../../../application/domain/game/Game";
 
 export default class GameController {
     constructor(
-        private useCase: IStartGameUsecase
+        private startGameUseCase: IStartGameUsecase
     ) {}
 
     public async start(req: CustomRequest, res: Response, next: NextFunction) {
@@ -17,7 +17,7 @@ export default class GameController {
         game.status = body.status;
         game.ownerId = userId;
 
-        const createdGame = await this.useCase.startGame(game);
+        const createdGame = await this.startGameUseCase.startGame(game);
 
         res.status(201).json(createdGame);
     }
