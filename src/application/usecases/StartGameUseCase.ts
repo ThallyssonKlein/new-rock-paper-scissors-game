@@ -5,7 +5,6 @@ import IRedisAdapter from "../posts/outbound/redis/IRedisAdapter";
 import IStartGameUsecase from "../posts/inbound/IStartGameUsecase";
 
 export default class StartGameUseCase implements IStartGameUsecase {
-    private readonly ONE_DAY = 86400000;
     private logger: Logger
 
     constructor(
@@ -18,9 +17,9 @@ export default class StartGameUseCase implements IStartGameUsecase {
     async startGame(game: Game): Promise<Game> {
         const saved = await this.gameRepository.save(game);
         this.logger.info('Game saved')
-        await this.redisAdapter.set(`game_:${saved.id}_owner`, game.ownerId + '', this.ONE_DAY);
+        await this.redisAdapter.set(`game_:${saved.id}_owner`, game.ownerId + '');
         this.logger.info('Game owner setted on cache')
-        await this.redisAdapter.set(`turn_${saved.id}`, 'player', this.ONE_DAY);
+        await this.redisAdapter.set(`turn_${saved.id}`, 'player');
         this.logger.info('Turn saved on cache')
         return saved;
     }

@@ -11,6 +11,10 @@ export default class MovementRepository implements IMovementRepository {
         this.repository = AppDataSource.getRepository(MovementEntity);
     }
 
+    async saveMovement(movement: Omit<Movement, "id">): Promise<Movement> {
+        return this.repository.save(movement);
+    }
+
     async findAllMovementsFromOnePlayer(playerId: number): Promise<Movement[]> {
         const entities = await this.repository.find({
             where: { playerId },

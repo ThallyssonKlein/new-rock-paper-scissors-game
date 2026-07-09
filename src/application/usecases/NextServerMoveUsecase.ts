@@ -3,6 +3,7 @@ import GameClosedError from "../domain/error/GameClosedError";
 import InvalidGameOwnerError from "../domain/error/InvalidGameOwnerError";
 import PlayerTurnError from "../domain/error/PlayerTurnError";
 import { Status } from "../domain/game/Status";
+import Movement from "../domain/movement/Movement";
 import IMovementUsecase from "../posts/inbound/IMovementUsecase";
 import INextServerMoveUsecase from "../posts/inbound/INextServerMoveUsecase"
 import IGameRepository from "../posts/outbound/postgresql/IGameRepository";
@@ -11,7 +12,6 @@ import IRedisAdapter from "../posts/outbound/redis/IRedisAdapter";
 
 export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
     private logger: Logger
-    private readonly ONE_DAY = 86400000;
 
     constructor (
         private gameRepository: IGameRepository,
@@ -35,7 +35,7 @@ export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
             return false
         }
 
-        await this.redisAdapter.set(`game_:${gameId}_owner`, userId + '', this.ONE_DAY);
+        await this.redisAdapter.set(`game_:${gameId}_owner`, userId + '');
 
         return true;
     }
@@ -68,7 +68,15 @@ export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
         const playerMovements = await this.movementsRepository.findAllMovementsFromOnePlayer(userId);
 
         const serverMovement = this.movementUseCase.generateServerMovement(playerMovements)
+        const salt = this.movementUseCase.generateSalt();
+        const hash = this.movementUseCase.generateHash(serverMovement, salt)
+        const movement: Omit<Movement, 'id'> = {
+            value: serverMovement, 
+            salt, 
+            hash
+        }
 
+        this.movementsRepository.saveMovement(movement)
         
     }
 }
