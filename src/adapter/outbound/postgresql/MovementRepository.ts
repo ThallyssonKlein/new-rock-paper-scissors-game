@@ -11,7 +11,7 @@ export default class MovementRepository implements IMovementRepository {
         this.repository = AppDataSource.getRepository(MovementEntity);
     }
 
-    async saveMovement(movement: Omit<Movement, "id">): Promise<Movement> {
+    async saveMovement(movement: Omit<Movement, "id" | "createdAt">): Promise<Movement> {
         return this.repository.save(movement);
     }
 

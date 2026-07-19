@@ -1,4 +1,5 @@
 import Logger from "../../adapter/outbound/logging/Logger"
+import Config from "../../config";
 import GameClosedError from "../domain/error/GameClosedError";
 import InvalidGameOwnerError from "../domain/error/InvalidGameOwnerError";
 import PlayerTurnError from "../domain/error/PlayerTurnError";
@@ -12,6 +13,7 @@ import IRedisAdapter from "../posts/outbound/redis/IRedisAdapter";
 
 export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
     private logger: Logger
+    private config = new Config().getConfig();
 
     constructor (
         private gameRepository: IGameRepository,
@@ -70,13 +72,16 @@ export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
         const serverMovement = this.movementUseCase.generateServerMovement(playerMovements)
         const salt = this.movementUseCase.generateSalt();
         const hash = this.movementUseCase.generateHash(serverMovement, salt)
-        const movement: Omit<Movement, 'id'> = {
+        const movement: Omit<Movement, 'id' | 'createdAt'> = {
             value: serverMovement, 
             salt, 
-            hash
+            hash,
+            playerId: this.config.playerIdServer,
+            gameId: game.id,
         }
 
-        this.movementsRepository.saveMovement(movement)
+        await this.movementsRepository.saveMovement(movement)
         
+        await this.redisAdapter.set('turn:' + gameId, userId + '')
     }
 }
