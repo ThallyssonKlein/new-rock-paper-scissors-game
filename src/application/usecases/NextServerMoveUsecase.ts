@@ -80,8 +80,10 @@ export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
             gameId: game.id,
         }
 
-        await this.movementsRepository.saveMovement(movement)
+        const savedMovement = await this.movementsRepository.saveMovement(movement)
         
         await this.redisAdapter.set('turn:' + gameId, userId + '')
+
+        return savedMovement;
     }
 }
