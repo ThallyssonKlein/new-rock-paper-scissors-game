@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 import { GameEntity } from "./GameEntity";
 import { MovementEntity } from "./MovementEntity";
 
@@ -6,6 +6,12 @@ import { MovementEntity } from "./MovementEntity";
 export class UserEntity {
     @PrimaryGeneratedColumn()
     id!: number;
+
+    @Column({ unique: true })
+    username!: string;
+
+    @Column({ name: "password_hash" })
+    passwordHash!: string;
 
     @OneToMany(() => GameEntity, (game) => game.owner)
     games!: GameEntity[];

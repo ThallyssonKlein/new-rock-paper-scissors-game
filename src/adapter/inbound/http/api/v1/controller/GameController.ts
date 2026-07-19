@@ -1,8 +1,7 @@
 import { NextFunction, Response } from "express";
 import IStartGameUsecase from "../../../../../../application/posts/inbound/IStartGameUsecase";
-import CustomRequest from "../../middleware/CustomRequest";
+import { AuthenticatedRequest } from "../../middleware/CustomRequest";
 import Game from "../../../../../../application/domain/game/Game";
-import IMovementUsecase from "../../../../../../application/posts/inbound/IMovementUsecase";
 import INextServerMoveUsecase from "../../../../../../application/posts/inbound/INextServerMoveUsecase";
 
 export default class GameController {
@@ -11,7 +10,7 @@ export default class GameController {
         private nextServerMovementUsecase: INextServerMoveUsecase
     ) {}
 
-    public async start(req: CustomRequest, res: Response, next: NextFunction) {
+    public async start(req: AuthenticatedRequest, res: Response, next: NextFunction) {
         const userId = req.userId;
 
         const body = req.body;
@@ -25,9 +24,13 @@ export default class GameController {
         res.status(201).json(createdGame);
     }
 
-    public async nextServerMove(req: CustomRequest, res: Response, next: NextFunction) {
-        const gameId = req.params.gameId
-        const generatedMovement = await this.nextServerMovementUsecase.nextServerMove();
+    public async nextServerMove(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+        const gameId = Number(req.params.gameId)
+        const userId = req.userId;
+
+        const generatedMovement = await this.nextServerMovementUsecase.nextServerMove(gameId, userId, req.traceId);
+
+        res.status(201).json(generatedMovement)
     }
 
     public move() {}

@@ -14,13 +14,13 @@ export default class StartGameUseCase implements IStartGameUsecase {
         this.logger = new Logger("GameUseCase")
     }
 
-    async startGame(game: Game): Promise<Game> {
+    async startGame(game: Game, traceId?: string): Promise<Game> {
         const saved = await this.gameRepository.save(game);
-        this.logger.info('Game saved')
+        this.logger.info('Game saved', traceId)
         await this.redisAdapter.set(`game_:${saved.id}_owner`, game.ownerId + '');
-        this.logger.info('Game owner setted on cache')
+        this.logger.info('Game owner setted on cache', traceId)
         await this.redisAdapter.set(`turn_${saved.id}`, 'player');
-        this.logger.info('Turn saved on cache')
+        this.logger.info('Turn saved on cache', traceId)
         return saved;
     }
 

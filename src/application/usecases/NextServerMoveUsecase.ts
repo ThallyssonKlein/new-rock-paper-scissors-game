@@ -42,7 +42,7 @@ export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
         return true;
     }
 
-    async nextServerMove(gameId: number, userId: number, traceId: string) {
+    async nextServerMove(gameId: number, userId: number, traceId?: string) {
         const isOwner = await this.verifyOwner(gameId, userId)
 
         if (!isOwner) {
@@ -68,6 +68,7 @@ export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
         }
 
         const playerMovements = await this.movementsRepository.findAllMovementsFromOnePlayer(userId);
+        this.logger.info("Player movements found", traceId)
 
         const serverMovement = this.movementUseCase.generateServerMovement(playerMovements)
         const salt = this.movementUseCase.generateSalt();
@@ -79,10 +80,13 @@ export default class NextServerMoveUseCase implements INextServerMoveUsecase  {
             playerId: this.config.playerIdServer,
             gameId: game.id,
         }
+        this.logger.info("Server movement, salt and hash generated", traceId)
 
         const savedMovement = await this.movementsRepository.saveMovement(movement)
+        this.logger.info("Movement saved", traceId)
         
         await this.redisAdapter.set('turn:' + gameId, userId + '')
+        this.logger.info("Turn saved on cache", traceId)
 
         return savedMovement;
     }
